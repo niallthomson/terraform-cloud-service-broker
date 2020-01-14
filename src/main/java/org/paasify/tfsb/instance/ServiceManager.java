@@ -98,7 +98,8 @@ public class ServiceManager implements ServiceInstanceService, ServiceInstanceBi
                     "run:errored",
                     "run:needs_attention"
             }));
-            workspace.setAutoApply(true);
+
+            this.api.createNotificationConfiguration(workspace.getId(), webhook);
 
             Variable instanceIdVariable = new Variable();
             instanceIdVariable.setKey("service_instance_id");
@@ -114,6 +115,7 @@ public class ServiceManager implements ServiceInstanceService, ServiceInstanceBi
                 envVariable.setValue(this.config.getEnv().get(envName));
                 envVariable.setCategory("env");
                 envVariable.setWorkspace(workspace);
+                envVariable.setSensitive(true);
 
                 this.api.createVariable(envVariable);
             }
@@ -368,5 +370,11 @@ public class ServiceManager implements ServiceInstanceService, ServiceInstanceBi
         catch(TerraformCloudException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @Override
+    public Mono<DeleteServiceInstanceBindingResponse> deleteServiceInstanceBinding(DeleteServiceInstanceBindingRequest request) {
+        return Mono.just(DeleteServiceInstanceBindingResponse.builder()
+                .build());
     }
 }
