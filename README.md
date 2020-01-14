@@ -1,40 +1,35 @@
-curl http://localhost:8080/v2/service_instances/abc1234?accepts_incomplete=true -d '{
-  "service_id": "test",
-  "plan_id": "dev",
-  "context": {
-    "platform": "cloudfoundry",
-    "some_field": "some-contextual-data"
-  },
-  "organization_guid": "org-guid-here",
-  "space_guid": "space-guid-here",
-  "parameters": {
-    "parameter1": 1,
-    "parameter2": "foo"
-  }
-}' -X PUT -H "X-Broker-API-Version: 2.14" -H "Content-Type: application/json"
+# Terraform Cloud Service Broker
 
-=================================================
+This project provides a Open Service Broker API implementation for interacting 
+with Terraform Cloud. This allows self-service, on-demand provisioning of infrastructure 
+using standard Terraform templates, using any provider supported by Terraform Cloud.
 
-curl http://localhost:8080/v2/service_instances/abc1234/service_bindings/abc1234?accepts_incomplete=true -d '{
-  "context": {
-    "platform": "cloudfoundry",
-    "some_field": "some-contextual-data"
-  },
-  "service_id": "test",
-  "plan_id": "dev",
-  "bind_resource": {
-    "app_guid": "app-guid-here"
-  },
-  "parameters": {
-    "parameter1-name-here": 1,
-    "parameter2-name-here": "parameter2-value-here"
-  }
-}' -X PUT -H "X-Broker-API-Version: 2.14" -H "Content-Type: application/json"
+Usage modes that this should work with:
+- Terraform Cloud (https://app.terraform.io)
+- Terraform Enterprise (self-hosted Terraform Cloud)
 
+The best way to integrate with this project is via:
+- [CloudFoundry Marketplace](https://docs.cloudfoundry.org/services/)
+- [Kubernetes Service Catalog](https://kubernetes.io/docs/concepts/extend-kubernetes/service-catalog/)
 
-===================================================
+## How it works
 
+The service broker assumes a VCS repository containing a catalog of services expressed 
+as Terraform templates. You can see an example here:
 
-curl http://localhost:8080/v2/service_instances/abc1234/last_operation?operation=1 -H "X-Broker-API-Version: 2.14"
+https://github.com/nthomson-pivotal/tf-test-1
 
-curl 'http://localhost:8080/v2/service_instances/abc1234?accepts_incomplete=true&service_id=test&plan_id=dev' -X DELETE -H "X-Broker-API-Version: 2.14"
+Multiple services and plans can be exposed from the same repository by providing  
+inputs to the Terraform templates, as different inputs can be passed by each plan.
+
+When a service is provisioned via the broker, a new Terraform Cloud workspace will 
+be created that references the appropriate template in the repository, and a run will 
+automatically be queued to build the infrastructure.
+
+When a service binding is created, all of the outputs produced by the Terraform configuration
+are returned as credentials via the OSB API spec. This allows endpoints and credentials 
+created to be consumed by applications.
+
+## Running
+
+TODO
