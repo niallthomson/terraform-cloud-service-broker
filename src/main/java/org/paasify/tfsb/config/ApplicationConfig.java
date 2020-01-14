@@ -1,7 +1,10 @@
 package org.paasify.tfsb.config;
 
 import lombok.Data;
+import org.paasify.tfsb.catalog.repository.HttpOfferingRepository;
+import org.paasify.tfsb.catalog.repository.OfferingRepository;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import java.util.Map;
@@ -22,7 +25,14 @@ public class ApplicationConfig {
 
     private String oauthTokenId;
 
+    private String offeringCatalogUrl;
+
     private Map<String, String> parameters;
 
     private Map<String, String> env;
+
+    @Bean
+    public OfferingRepository offeringRepository() {
+        return new HttpOfferingRepository(this.offeringCatalogUrl);
+    }
 }

@@ -16,8 +16,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@Service
-public class ClasspathOfferingRepository {
+public class ClasspathOfferingRepository implements OfferingRepository {
 
     private final ResourceLoader resourceLoader;
 

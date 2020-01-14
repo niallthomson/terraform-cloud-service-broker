@@ -3,6 +3,7 @@ package org.paasify.tfsb.catalog;
 import org.paasify.tfsb.catalog.model.Offering;
 import org.paasify.tfsb.catalog.model.OfferingPlan;
 import org.paasify.tfsb.catalog.repository.ClasspathOfferingRepository;
+import org.paasify.tfsb.catalog.repository.OfferingRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.servicebroker.model.catalog.Catalog;
 import org.springframework.cloud.servicebroker.model.catalog.Plan;
@@ -17,10 +18,10 @@ import java.util.stream.Collectors;
 @Service
 public class CatalogService implements org.springframework.cloud.servicebroker.service.CatalogService {
 
-    private final ClasspathOfferingRepository offeringRepository;
+    private final OfferingRepository offeringRepository;
 
     @Autowired
-    public CatalogService(ClasspathOfferingRepository offeringRepository) {
+    public CatalogService(OfferingRepository offeringRepository) {
         this.offeringRepository = offeringRepository;
     }
 
