@@ -1,47 +1,50 @@
 offerings:
-- name: test
-  displayName: Test
-  description: Test service
-  imageUrl: https://s3.amazonaws.com/awsservicebroker/icons/AmazonRDS_LARGE.png
-  documentationUrl: https://aws.amazon.com/documentation/rds/
-  providerDisplayName: Paasify
+- name: randomid
+  displayName: Random ID
+  description: Generates a random ID via Terraform
+  providerDisplayName: Terraform
   vcsDirectory: test
   tags:
-    - mytag
+    - random
   plans:
-    dev:
-      displayName: dev
-      description: Dev plan
-      longDescription: Dev plan in detail
-      parameters:
-        scale: 1
-    prod:
-      displayName: prod
-      description: Prod plan
-      longDescription: Prod plan in detail
-      parameters:
-        scale: 3
-- name: test1
-  displayName: Test1
-  description: Test1 service
+    default:
+      displayName: default
+      description: Default plan
+      longDescription: Default plan
+
+- name: rds-postgres
+  displayName: RDS Postgres
+  description: RDS Postgres database via Terraform
   imageUrl: https://s3.amazonaws.com/awsservicebroker/icons/AmazonRDS_LARGE.png
   documentationUrl: https://aws.amazon.com/documentation/rds/
-  providerDisplayName: Paasify
-  vcs-directory: test
+  providerDisplayName: Terraform
+  vcsDirectory: aws-rds-postgres
   tags:
-    - mytag1
+    - postgresql
+    - database
   plans:
     dev:
       displayName: dev
       description: Dev plan
       longDescription: Dev plan in detail
-      cost: free
-      parameters:
-        scale: 1
     prod:
       displayName: prod
       description: Prod plan
       longDescription: Prod plan in detail
-      cost: free
       parameters:
-        scale: 3
+        multi_az: true
+
+- name: vault-kv
+  displayName: Vault K/V
+  description: Hashicorp Vault Key/Value Backend for storing generic secrets
+  imageUrl: https://s3.amazonaws.com/awsservicebroker/icons/AmazonRDS_LARGE.png
+  documentationUrl: https://www.vaultproject.io/docs/secrets/kv/index.html
+  providerDisplayName: Terraform
+  vcsDirectory: vault-kv
+  tags:
+    - vault
+  plans:
+    dev:
+      displayName: default
+      description: Default plan
+      longDescription: Default plan
