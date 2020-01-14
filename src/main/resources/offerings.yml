@@ -1,0 +1,47 @@
+offerings:
+- name: test
+  displayName: Test
+  description: Test service
+  imageUrl: https://s3.amazonaws.com/awsservicebroker/icons/AmazonRDS_LARGE.png
+  documentationUrl: https://aws.amazon.com/documentation/rds/
+  providerDisplayName: Paasify
+  vcsDirectory: test
+  tags:
+    - mytag
+  plans:
+    dev:
+      displayName: dev
+      description: Dev plan
+      longDescription: Dev plan in detail
+      parameters:
+        scale: 1
+    prod:
+      displayName: prod
+      description: Prod plan
+      longDescription: Prod plan in detail
+      parameters:
+        scale: 3
+- name: test1
+  displayName: Test1
+  description: Test1 service
+  imageUrl: https://s3.amazonaws.com/awsservicebroker/icons/AmazonRDS_LARGE.png
+  documentationUrl: https://aws.amazon.com/documentation/rds/
+  providerDisplayName: Paasify
+  vcs-directory: test
+  tags:
+    - mytag1
+  plans:
+    dev:
+      displayName: dev
+      description: Dev plan
+      longDescription: Dev plan in detail
+      cost: free
+      parameters:
+        scale: 1
+    prod:
+      displayName: prod
+      description: Prod plan
+      longDescription: Prod plan in detail
+      cost: free
+      parameters:
+        scale: 3
