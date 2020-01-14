@@ -67,7 +67,7 @@ public class CatalogService implements org.springframework.cloud.servicebroker.s
                     .id(name)
                     .description(plan.getDescription())
                     .name(plan.getDisplayName())
-                    .free(false)
+                    .free(true)
                     .build());
         }
 

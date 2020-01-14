@@ -4,6 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -19,7 +21,7 @@ public class Offering {
 
     private String vcsDirectory;
 
-    private List<String> tags;
+    private List<String> tags = new ArrayList<>();
 
-    private Map<String, OfferingPlan> plans;
+    private Map<String, OfferingPlan> plans = new HashMap<>();
 }
