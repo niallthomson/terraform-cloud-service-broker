@@ -1,5 +1,7 @@
 # Terraform Cloud Service Broker
 
+WARNING: This code is prototype-quality and the documentation is in the very early stages
+
 This project provides a Open Service Broker API implementation for interacting 
 with Terraform Cloud. This allows self-service, on-demand provisioning of infrastructure 
 using standard Terraform templates, using any provider supported by Terraform Cloud.
