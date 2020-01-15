@@ -54,6 +54,9 @@ public class CatalogService implements org.springframework.cloud.servicebroker.s
                 .bindable(true)
                 .description(offering.getDescription())
                 .tags(offering.getTags())
+                .metadata("imageUrl", offering.getImageUrl())
+                .metadata("documentationUrl", offering.getDocumentationUrl())
+                .metadata("providerDisplayName", offering.getProviderDisplayName())
                 .plans(createPlans(offering))
                 .build();
     }

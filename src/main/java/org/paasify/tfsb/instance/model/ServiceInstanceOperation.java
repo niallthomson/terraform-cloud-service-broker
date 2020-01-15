@@ -18,6 +18,7 @@ public class ServiceInstanceOperation {
 
     private boolean complete;
 
+    @Enumerated(EnumType.STRING)
     private OperationState state;
 
     private Type type;

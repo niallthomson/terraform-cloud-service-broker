@@ -29,7 +29,7 @@ public class ApplicationConfig {
 
     private Map<String, String> parameters;
 
-    private Map<String, String> env;
+    private Map<String, String> context;
 
     @Bean
     public OfferingRepository offeringRepository() {

@@ -27,4 +27,6 @@ public class NotificationConfiguration {
 
     @Relationship("subscribable")
     private Workspace subscribable;
+
+    public static final String DESTINATION_TYPE_GENERIC = "generic";
 }

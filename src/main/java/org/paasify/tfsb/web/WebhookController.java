@@ -34,6 +34,10 @@ public class WebhookController {
                     log.error("Processing needs attention event for {} ", payload.getRunId());
                     serviceInstanceService.onNeedsAttention(payload.getRunId());
                     break;
+                case "run:errored":
+                    log.error("Processing error event for {} ", payload.getRunId());
+                    serviceInstanceService.onError(payload.getRunId());
+                    break;
             }
         }
 

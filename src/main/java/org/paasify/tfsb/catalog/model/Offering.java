@@ -21,7 +21,15 @@ public class Offering {
 
     private String vcsDirectory;
 
+    private String imageUrl;
+
+    private String providerDisplayName;
+
+    private String documentationUrl;
+
     private List<String> tags = new ArrayList<>();
+
+    private Map<String, String> env = new HashMap<>();
 
     private Map<String, OfferingPlan> plans = new HashMap<>();
 }

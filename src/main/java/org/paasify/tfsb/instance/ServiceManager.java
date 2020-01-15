@@ -1,5 +1,7 @@
 package org.paasify.tfsb.instance;
 
+import org.apache.commons.text.StringSubstitutor;
+import org.aspectj.weaver.ast.Var;
 import org.paasify.tfsb.api.TerraformCloud;
 import org.paasify.tfsb.api.TerraformCloudException;
 import org.paasify.tfsb.api.model.*;
@@ -89,7 +91,7 @@ public class ServiceManager implements ServiceInstanceService, ServiceInstanceBi
 
             NotificationConfiguration webhook = new NotificationConfiguration();
             webhook.setName("service-broker");
-            webhook.setDestinationType("generic");
+            webhook.setDestinationType(NotificationConfiguration.DESTINATION_TYPE_GENERIC);
             webhook.setEnabled(true);
             webhook.setSubscribable(workspace);
             webhook.setUrl(this.config.getWebhookUrl());
@@ -101,33 +103,31 @@ public class ServiceManager implements ServiceInstanceService, ServiceInstanceBi
 
             this.api.createNotificationConfiguration(workspace.getId(), webhook);
 
-            Variable instanceIdVariable = new Variable();
-            instanceIdVariable.setKey("service_instance_id");
-            instanceIdVariable.setValue(serviceInstanceId);
-            instanceIdVariable.setCategory("terraform");
-            instanceIdVariable.setWorkspace(workspace);
+            this.api.createVariable(Variable.builder().key("service_instance_id")
+                    .value(serviceInstanceId)
+                    .category(Variable.CATEGORY_TERRAFORM)
+                    .workspace(workspace)
+                    .build());
 
-            this.api.createVariable(instanceIdVariable);
+            StringSubstitutor substitutor = new StringSubstitutor(this.config.getContext());
 
-            for(String envName : this.config.getEnv().keySet()) {
-                Variable envVariable = new Variable();
-                envVariable.setKey(envName);
-                envVariable.setValue(this.config.getEnv().get(envName));
-                envVariable.setCategory("env");
-                envVariable.setWorkspace(workspace);
-                envVariable.setSensitive(true);
-
-                this.api.createVariable(envVariable);
+            for(String envName : offering.getEnv().keySet()) {
+                this.api.createVariable(Variable.builder()
+                        .key(envName)
+                        .value(substitutor.replace(offering.getEnv().get(envName)))
+                        .category(Variable.CATEGORY_ENV)
+                        .workspace(workspace)
+                        .sensitive(true)
+                        .build());
             }
 
             for(String variableName : plan.getParameters().keySet()) {
-                Variable variable = new Variable();
-                variable.setKey(variableName);
-                variable.setValue(plan.getParameters().get(variableName));
-                variable.setCategory("terraform");
-                variable.setWorkspace(workspace);
-
-                this.api.createVariable(variable);
+                this.api.createVariable(Variable.builder()
+                        .key(variableName)
+                        .value(plan.getParameters().get(variableName))
+                        .category(Variable.CATEGORY_TERRAFORM)
+                        .workspace(workspace)
+                        .build());
             }
 
             Thread.sleep(2000);
@@ -201,14 +201,13 @@ public class ServiceManager implements ServiceInstanceService, ServiceInstanceBi
         Workspace param = new Workspace();
         param.setId(workspace.getId());
 
-        Variable variable = new Variable();
-        variable.setKey("CONFIRM_DESTROY");
-        variable.setValue("1");
-        variable.setCategory("env");
-        variable.setWorkspace(param);
-
         try {
-            this.api.createVariable(variable);
+            this.api.createVariable(Variable.builder()
+                    .key("CONFIRM_DESTROY")
+                    .value("1")
+                    .category(Variable.CATEGORY_ENV)
+                    .workspace(param)
+                    .build());
         }
         catch(TerraformCloudException e) {
             throw new RuntimeException(e);
@@ -336,6 +335,17 @@ public class ServiceManager implements ServiceInstanceService, ServiceInstanceBi
             }
         } catch (TerraformCloudException e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    @Transactional
+    public void onError(String runId) {
+        ServiceInstanceOperation operation = this.serviceInstanceOperationRepository.findByRunId(runId);
+
+        if(operation != null) {
+            operation.setState(OperationState.FAILED);
+
+            this.serviceInstanceOperationRepository.save(operation);
         }
     }
 
