@@ -19,6 +19,8 @@ public class Offering {
 
     private String description;
 
+    private String longDescription;
+
     private String vcsDirectory;
 
     private String imageUrl;

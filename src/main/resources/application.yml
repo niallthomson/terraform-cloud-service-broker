@@ -1,4 +1,7 @@
 servicebroker:
+  auth:
+    username: someuser
+    password: somethingsecure
   terraformToken: # SET THIS
   terraformOrganization: # SET THIS
   terraformVersion: 0.11.1

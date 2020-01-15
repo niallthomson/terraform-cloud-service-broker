@@ -38,4 +38,8 @@ public class Run {
     private Workspace workspace;
 
     private Map<String, Boolean> actions;
+
+    public static final String ACTION_CANCELABLE = "is-cancelable";
+    public static final String ACTION_CONFIRMABLE = "is-confirmable";
+    public static final String ACTION_DISCARDABLE = "is-discardable";
 }

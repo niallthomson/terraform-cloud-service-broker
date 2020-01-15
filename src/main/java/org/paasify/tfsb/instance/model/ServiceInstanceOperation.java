@@ -27,6 +27,7 @@ public class ServiceInstanceOperation {
 
     public enum Type {
         CREATION,
-        DELETION
+        DELETION,
+        UPDATE
     }
 }

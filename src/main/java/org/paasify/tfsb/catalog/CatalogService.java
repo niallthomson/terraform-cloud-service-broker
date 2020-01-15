@@ -54,6 +54,8 @@ public class CatalogService implements org.springframework.cloud.servicebroker.s
                 .bindable(true)
                 .description(offering.getDescription())
                 .tags(offering.getTags())
+                .metadata("displayName", offering.getDisplayName())
+                .metadata("longDescription", offering.getLongDescription())
                 .metadata("imageUrl", offering.getImageUrl())
                 .metadata("documentationUrl", offering.getDocumentationUrl())
                 .metadata("providerDisplayName", offering.getProviderDisplayName())
@@ -70,8 +72,10 @@ public class CatalogService implements org.springframework.cloud.servicebroker.s
             plans.add(Plan.builder()
                     .id(name)
                     .description(plan.getDescription())
-                    .name(plan.getDisplayName())
+                    .name(plan.getName())
                     .free(true)
+                    .metadata("displayName", plan.getDisplayName())
+                    .metadata("bullets", plan.getBullets())
                     .build());
         }
 

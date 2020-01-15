@@ -13,6 +13,7 @@ import java.util.Map;
 @Data
 @ConfigurationProperties(prefix="servicebroker")
 public class ApplicationConfig {
+
     private String terraformToken;
 
     private String terraformOrganization;
@@ -30,6 +31,15 @@ public class ApplicationConfig {
     private Map<String, String> parameters;
 
     private Map<String, String> context;
+
+    private Auth auth;
+
+    @Data
+    public static class Auth {
+        private String username;
+
+        private String password;
+    }
 
     @Bean
     public OfferingRepository offeringRepository() {

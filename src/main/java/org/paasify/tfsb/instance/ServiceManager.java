@@ -1,5 +1,6 @@
 package org.paasify.tfsb.instance;
 
+import lombok.extern.log4j.Log4j2;
 import org.apache.commons.text.StringSubstitutor;
 import org.aspectj.weaver.ast.Var;
 import org.paasify.tfsb.api.TerraformCloud;
@@ -14,6 +15,8 @@ import org.paasify.tfsb.instance.model.ServiceInstanceOperation;
 import org.paasify.tfsb.instance.repository.ServiceInstanceOperationRepository;
 import org.paasify.tfsb.instance.repository.ServiceInstanceRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cloud.servicebroker.exception.ServiceBrokerOperationInProgressException;
+import org.springframework.cloud.servicebroker.exception.ServiceInstanceDoesNotExistException;
 import org.springframework.cloud.servicebroker.model.binding.*;
 import org.springframework.cloud.servicebroker.model.instance.*;
 import org.springframework.cloud.servicebroker.service.ServiceInstanceBindingService;
@@ -28,6 +31,7 @@ import java.util.Map;
 import java.util.Optional;
 
 @Service
+@Log4j2
 public class ServiceManager implements ServiceInstanceService, ServiceInstanceBindingService {
 
     private TerraformCloud api;
@@ -58,7 +62,6 @@ public class ServiceManager implements ServiceInstanceService, ServiceInstanceBi
         String serviceInstanceId = request.getServiceInstanceId();
         String serviceDefinitionId = request.getServiceDefinitionId();
         String planId = request.getPlanId();
-        //Map<String, Object> parameters = request.getParameters();
 
         Offering offering = this.catalogService.getOffering(serviceDefinitionId);
 
@@ -149,13 +152,7 @@ public class ServiceManager implements ServiceInstanceService, ServiceInstanceBi
 
         instance = this.repository.save(instance);
 
-        ServiceInstanceOperation operation = new ServiceInstanceOperation();
-        operation.setInstance(instance);
-        operation.setState(OperationState.IN_PROGRESS);
-        operation.setType(ServiceInstanceOperation.Type.CREATION);
-        operation.setRunId(run.getId());
-
-        operation = this.serviceInstanceOperationRepository.save(operation);
+        ServiceInstanceOperation operation = createOperation(instance, ServiceInstanceOperation.Type.CREATION, run.getId());
 
         return Mono.just(CreateServiceInstanceResponse.builder()
                 .async(true)
@@ -166,18 +163,32 @@ public class ServiceManager implements ServiceInstanceService, ServiceInstanceBi
     @Override
     public Mono<UpdateServiceInstanceResponse> updateServiceInstance(UpdateServiceInstanceRequest request) {
         String serviceInstanceId = request.getServiceInstanceId();
-        String planId = request.getPlanId();
-        String previousPlan = request.getPreviousValues().getPlanId();
-        Map<String, Object> parameters = request.getParameters();
 
-        //
-        // perform the steps necessary to initiate the asynchronous
-        // updating of all necessary resources
-        //
+        Optional<ServiceInstance> instance = repository.findById(serviceInstanceId);
 
-        return Mono.just(UpdateServiceInstanceResponse.builder()
-                .async(true)
-                .build());
+        if(instance.isEmpty()) {
+            throw new ServiceInstanceDoesNotExistException(serviceInstanceId);
+        }
+
+        try {
+            Workspace param = new Workspace();
+            param.setId(instance.get().getWorkspaceId());
+
+            Run runParam = new Run();
+            runParam.setWorkspace(param);
+            runParam.setMessage("Update run");
+
+            Run run = api.createRun(runParam);
+
+            ServiceInstanceOperation operation = createOperation(instance.get(), ServiceInstanceOperation.Type.UPDATE, run.getId());
+
+            return Mono.just(UpdateServiceInstanceResponse.builder()
+                    .async(true)
+                    .operation(Long.toString(operation.getId()))
+                    .build());
+        } catch (TerraformCloudException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
@@ -188,7 +199,7 @@ public class ServiceManager implements ServiceInstanceService, ServiceInstanceBi
         Optional<ServiceInstance> instance = repository.findById(serviceInstanceId);
 
         if(instance.isEmpty()) {
-            throw new RuntimeException("No service instance");
+            throw new ServiceInstanceDoesNotExistException(serviceInstanceId);
         }
 
         Workspace workspace = null;
@@ -217,18 +228,22 @@ public class ServiceManager implements ServiceInstanceService, ServiceInstanceBi
 
         String runId = handleDestroy(run);
 
-        ServiceInstanceOperation operation = new ServiceInstanceOperation();
-        operation.setInstance(instance.get());
-        operation.setState(OperationState.IN_PROGRESS);
-        operation.setType(ServiceInstanceOperation.Type.DELETION);
-        operation.setRunId(runId);
-
-        operation = this.serviceInstanceOperationRepository.save(operation);
+        ServiceInstanceOperation operation = createOperation(instance.get(), ServiceInstanceOperation.Type.DELETION, runId);
 
         return Mono.just(DeleteServiceInstanceResponse.builder()
                 .async(true)
                 .operation(Long.toString(operation.getId()))
                 .build());
+    }
+
+    private ServiceInstanceOperation createOperation(ServiceInstance instance, ServiceInstanceOperation.Type type, String runId) {
+        ServiceInstanceOperation operation = new ServiceInstanceOperation();
+        operation.setInstance(instance);
+        operation.setState(OperationState.IN_PROGRESS);
+        operation.setType(type);
+        operation.setRunId(runId);
+
+        return this.serviceInstanceOperationRepository.save(operation);
     }
 
     @Override
@@ -252,7 +267,7 @@ public class ServiceManager implements ServiceInstanceService, ServiceInstanceBi
         Optional<ServiceInstanceOperation> operation = this.serviceInstanceOperationRepository.findById(Long.parseLong(operationId));
 
         if(operation.isEmpty()) {
-            throw new RuntimeException("No such operation");
+            throw new ServiceBrokerOperationInProgressException("No such operation");
         }
 
         return Mono.just(GetLastServiceOperationResponse.builder()
@@ -264,9 +279,9 @@ public class ServiceManager implements ServiceInstanceService, ServiceInstanceBi
         String id = run.getId();
 
         try {
-            if (run.getActions().get("is-cancelable")) {
+            if (run.getActions().get(Run.ACTION_CANCELABLE)) {
                 this.api.cancelRun(run.getId());
-            } else if (run.getActions().get("is-discardable")) {
+            } else if (run.getActions().get(Run.ACTION_DISCARDABLE)) {
                 this.api.discardRun(run.getId());
             } else {
                 Workspace workspace = new Workspace();
@@ -356,7 +371,7 @@ public class ServiceManager implements ServiceInstanceService, ServiceInstanceBi
         Optional<ServiceInstance> instance = repository.findById(id);
 
         if(instance.isEmpty()) {
-            throw new RuntimeException("Instance does not exist");
+            throw new ServiceInstanceDoesNotExistException(id);
         }
 
         try {
