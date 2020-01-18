@@ -3,6 +3,7 @@ package org.paasify.tfsb.config;
 import lombok.Data;
 import org.paasify.tfsb.catalog.repository.HttpOfferingRepository;
 import org.paasify.tfsb.catalog.repository.OfferingRepository;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -14,19 +15,13 @@ import java.util.Map;
 @ConfigurationProperties(prefix="servicebroker")
 public class ApplicationConfig {
 
-    private String terraformToken;
-
-    private String terraformOrganization;
-
-    private String terraformVersion;
+    private Terraform terraform;
 
     private String webhookUrl;
 
     private String vcsRepo;
 
-    private String oauthTokenId;
-
-    private String offeringCatalogUrl;
+    private String catalogUrl;
 
     private Map<String, String> parameters;
 
@@ -41,8 +36,19 @@ public class ApplicationConfig {
         private String password;
     }
 
+    @Data
+    public static class Terraform {
+        private String organization;
+
+        private String token;
+
+        private String oauthTokenId;
+
+        private String version;
+    }
+
     @Bean
     public OfferingRepository offeringRepository() {
-        return new HttpOfferingRepository(this.offeringCatalogUrl);
+        return new HttpOfferingRepository(this.catalogUrl);
     }
 }

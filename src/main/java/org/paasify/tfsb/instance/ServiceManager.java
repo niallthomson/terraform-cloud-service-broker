@@ -2,7 +2,6 @@ package org.paasify.tfsb.instance;
 
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.text.StringSubstitutor;
-import org.aspectj.weaver.ast.Var;
 import org.paasify.tfsb.api.TerraformCloud;
 import org.paasify.tfsb.api.TerraformCloudException;
 import org.paasify.tfsb.api.model.*;
@@ -48,7 +47,7 @@ public class ServiceManager implements ServiceInstanceService, ServiceInstanceBi
                           @Autowired ServiceInstanceRepository repository,
                           @Autowired ServiceInstanceOperationRepository serviceInstanceOperationRepository,
                           @Autowired CatalogService catalogService) {
-        this.api = new TerraformCloud(config.getTerraformToken());
+        this.api = new TerraformCloud(config.getTerraform().getToken());
 
         this.catalogService = catalogService;
         this.repository = repository;
@@ -77,12 +76,12 @@ public class ServiceManager implements ServiceInstanceService, ServiceInstanceBi
 
         VcsRepo repo = new VcsRepo();
         repo.setIdentifier(this.config.getVcsRepo());
-        repo.setOauthTokenId(this.config.getOauthTokenId());
+        repo.setOauthTokenId(this.config.getTerraform().getOauthTokenId());
 
         Workspace workspaceReq = new Workspace();
         workspaceReq.setName("instance-"+serviceInstanceId);
         workspaceReq.setVcsRepo(repo);
-        workspaceReq.setTerraformVersion(this.config.getTerraformVersion());
+        workspaceReq.setTerraformVersion(this.config.getTerraform().getVersion());
         workspaceReq.setWorkingDirectory(offering.getVcsDirectory());
         workspaceReq.setAutoApply(true);
 
@@ -90,7 +89,7 @@ public class ServiceManager implements ServiceInstanceService, ServiceInstanceBi
         Run run;
 
         try {
-            workspace = this.api.createWorkspace(this.config.getTerraformOrganization(), workspaceReq);
+            workspace = this.api.createWorkspace(this.config.getTerraform().getOrganization(), workspaceReq);
 
             NotificationConfiguration webhook = new NotificationConfiguration();
             webhook.setName("service-broker");

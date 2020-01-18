@@ -21,16 +21,23 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        http.authorizeRequests()
-                .antMatchers("/", "/home").permitAll()
-                .anyRequest().authenticated().and().httpBasic();
+        http
+                .authorizeRequests()
+                .antMatchers("/", "/home", "/webhook").permitAll()
+                .anyRequest().authenticated().and().httpBasic()
+                .and().csrf().disable();
     }
 
+    @Bean
     @Override
-    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-        auth.inMemoryAuthentication()
-                .withUser(this.config.getAuth().getUsername())
-                .password(this.config.getAuth().getPassword())
-                .roles("USER");
+    public UserDetailsService userDetailsService() {
+        UserDetails user =
+                User.withDefaultPasswordEncoder()
+                        .username(this.config.getAuth().getUsername())
+                        .password(this.config.getAuth().getPassword())
+                        .roles("USER")
+                        .build();
+
+        return new InMemoryUserDetailsManager(user);
     }
 }

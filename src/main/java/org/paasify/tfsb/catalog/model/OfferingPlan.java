@@ -15,7 +15,7 @@ public class OfferingPlan {
 
     private String displayName;
 
-    private String description;
+    private String description = "";
 
     private List<String> bullets = new ArrayList<>();
 

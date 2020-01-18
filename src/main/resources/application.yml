@@ -2,12 +2,13 @@ servicebroker:
   auth:
     username: someuser
     password: somethingsecure
-  terraformToken: # SET THIS
-  terraformOrganization: # SET THIS
-  terraformVersion: 0.11.1
-  webhookUrl: # SET THIS
-  vcsRepo: niallthomson/tf-test
-  oauthTokenId: # SET THIS
+  terraform:
+    token: # SET THIS
+    organization: # SET THIS
+    oauth-token-id: # SET THIS
+    version: 0.11.1
+  webhook-url: # SET THIS
+  vcs-repo: niallthomson/tf-test
   env:
     AWS_ACCESS_KEY_ID: # SET THIS
     AWS_SECRET_ACCESS_KEY: # SET THIS
