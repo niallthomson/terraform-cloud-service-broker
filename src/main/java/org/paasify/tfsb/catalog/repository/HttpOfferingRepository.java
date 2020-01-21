@@ -34,7 +34,7 @@ public class HttpOfferingRepository implements OfferingRepository {
 
             FileUtils.copyURLToFile(new URL(this.offeringCatalogUrl), file);
 
-            offerings = new HashMap<>();
+            Map<String, Offering> offerings = new HashMap<>();
 
             ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
             mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
@@ -42,8 +42,10 @@ public class HttpOfferingRepository implements OfferingRepository {
             OfferingContainer container = mapper.readValue(file, OfferingContainer.class);
 
             for(Offering offering : container.getOfferings()) {
-                this.offerings.put(offering.getName(), offering);
+                offerings.put(offering.getName(), offering);
             }
+
+            this.offerings = offerings;
         } catch (Exception e) {
             throw new RuntimeException("Failed to parse offering yaml", e);
         }
@@ -55,5 +57,10 @@ public class HttpOfferingRepository implements OfferingRepository {
 
     public Offering getOffering(String name) throws OfferingRepositoryException {
         return this.offerings.get(name);
+    }
+
+    @Override
+    public void refresh() throws OfferingRepositoryException {
+        this.loadOfferings();
     }
 }

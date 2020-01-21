@@ -5,17 +5,19 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 
 @Entity
 @Data
 @NoArgsConstructor
-public class ServiceInstance {
+public class ServiceBinding {
     @Id
     private String id;
 
-    private String serviceDefinitionId;
-
-    private String planId;
+    @ManyToOne(optional=false)
+    @JoinColumn(name="INSTANCE_ID")
+    private ServiceInstance instance;
 
     private String workspaceId;
 
@@ -23,10 +25,9 @@ public class ServiceInstance {
 
     private boolean deleted;
 
-    public ServiceInstance(String id, String serviceDefinitionId, String planId, String workspaceId) {
+    public ServiceBinding(String id, ServiceInstance instance, String workspaceId) {
         this.id = id;
-        this.serviceDefinitionId = serviceDefinitionId;
-        this.planId = planId;
+        this.instance = instance;
         this.workspaceId = workspaceId;
     }
 }

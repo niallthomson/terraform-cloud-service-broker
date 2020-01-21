@@ -9,4 +9,6 @@ public interface OfferingRepository {
     List<Offering> getOfferings() throws OfferingRepositoryException;
 
     Offering getOffering(String name) throws OfferingRepositoryException;
+
+    void refresh() throws OfferingRepositoryException;
 }

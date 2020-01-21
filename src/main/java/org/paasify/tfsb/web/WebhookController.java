@@ -5,10 +5,13 @@ import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import lombok.Data;
 import lombok.extern.log4j.Log4j2;
-import org.paasify.tfsb.instance.ServiceManager;
+import org.paasify.tfsb.instance.ServiceInstanceBindingServiceImpl;
+import org.paasify.tfsb.instance.ServiceInstanceServiceImpl;
+import org.paasify.tfsb.instance.WebhookHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -18,25 +21,34 @@ import java.util.List;
 public class WebhookController {
 
     @Autowired
-    private ServiceManager serviceInstanceService;
+    private ServiceInstanceServiceImpl serviceInstanceService;
+
+    @Autowired
+    private ServiceInstanceBindingServiceImpl serviceBindingService;
 
     @PostMapping("/webhook")
-    public String webhook(@RequestBody WebhookPayload payload) {
+    public String webhook(@RequestBody WebhookPayload payload, @RequestParam("binding") boolean binding) {
         log.error("Processing webhook payload {}", payload);
+
+        WebhookHandler handler = this.serviceInstanceService;
+
+        if(binding) {
+            handler = this.serviceBindingService;
+        }
 
         for(WebhookPayloadNotification notification : payload.getNotifications()) {
             switch(notification.getTrigger()) {
                 case "run:completed":
                     log.error("Processing completion event for {} ", payload.getRunId());
-                    serviceInstanceService.onCompleted(payload.getRunId());
+                    handler.onCompleted(payload.getRunId());
                     break;
                 case "run:needs_attention":
                     log.error("Processing needs attention event for {} ", payload.getRunId());
-                    serviceInstanceService.onNeedsAttention(payload.getRunId());
+                    handler.onNeedsAttention(payload.getRunId());
                     break;
                 case "run:errored":
                     log.error("Processing error event for {} ", payload.getRunId());
-                    serviceInstanceService.onError(payload.getRunId());
+                    handler.onError(payload.getRunId());
                     break;
             }
         }

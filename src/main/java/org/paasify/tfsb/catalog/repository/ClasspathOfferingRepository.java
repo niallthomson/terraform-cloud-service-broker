@@ -57,4 +57,9 @@ public class ClasspathOfferingRepository implements OfferingRepository {
     public Offering getOffering(String name) throws OfferingRepositoryException {
        return this.offerings.get(name);
     }
+
+    @Override
+    public void refresh() throws OfferingRepositoryException {
+        this.loadOfferings();
+    }
 }

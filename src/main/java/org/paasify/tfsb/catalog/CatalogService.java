@@ -1,5 +1,6 @@
 package org.paasify.tfsb.catalog;
 
+import org.paasify.tfsb.api.model.Run;
 import org.paasify.tfsb.catalog.model.Offering;
 import org.paasify.tfsb.catalog.model.OfferingPlan;
 import org.paasify.tfsb.catalog.repository.ClasspathOfferingRepository;
@@ -39,6 +40,15 @@ public class CatalogService implements org.springframework.cloud.servicebroker.s
         }
     }
 
+    public void refresh() {
+        try {
+            this.offeringRepository.refresh();
+        }
+        catch(OfferingRepositoryException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public Offering getOffering(String name) {
         try {
             return this.offeringRepository.getOffering(name);
@@ -52,10 +62,11 @@ public class CatalogService implements org.springframework.cloud.servicebroker.s
                 .id(offering.getName())
                 .name(offering.getName())
                 .bindable(true)
+                .bindingsRetrievable(true)
                 .description(offering.getDescription())
                 .tags(offering.getTags())
                 .metadata("displayName", offering.getDisplayName())
-                .metadata("longDescription", offering.getLongDescription())
+                .metadata("longDescription", offering.getLongDescription() == null ? offering.getDescription() : offering.getLongDescription())
                 .metadata("imageUrl", offering.getImageUrl())
                 .metadata("documentationUrl", offering.getDocumentationUrl())
                 .metadata("providerDisplayName", offering.getProviderDisplayName())

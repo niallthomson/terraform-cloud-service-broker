@@ -21,7 +21,7 @@ public class Offering {
 
     private String longDescription;
 
-    private String vcsDirectory;
+    private OfferingVcs vcs;
 
     private String imageUrl;
 
@@ -34,4 +34,11 @@ public class Offering {
     private Map<String, String> env = new HashMap<>();
 
     private Map<String, OfferingPlan> plans = new HashMap<>();
+
+    @Data
+    public static class OfferingVcs {
+        private String instanceDirectory;
+
+        private String bindingDirectory;
+    }
 }
