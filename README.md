@@ -19,7 +19,7 @@ The best way to integrate with this project is via:
 The service broker assumes a VCS repository containing a catalog of services expressed 
 as Terraform templates. You can see an example here:
 
-https://github.com/nthomson-pivotal/tf-test-1
+https://github.com/niallthomson/terraform-service-catalog-example
 
 Multiple services and plans can be exposed from the same repository by providing  
 inputs to the Terraform templates, as different inputs can be passed by each plan.
